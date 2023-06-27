@@ -14,13 +14,13 @@ async function findListing(name) {
     const html = await response.text();
     const $ = cheerio.load(html);
     let listing = null;
-    let lowest = Infinity;
+    let lowestPrice = Infinity;
 
     $(listingsSelector).children().each((i, el) => {
         const priceText = $(el).find('div:nth-child(3) > div:nth-child(2) > span').text();
         const priceNum = parseFloat(priceText.replace('$', ''));
-        if (priceNum < lowest) {
-            lowest = priceNum;
+        if (priceNum < lowestPrice) {
+            lowestPrice = priceNum;
             listing = el;
         }
     });
@@ -31,12 +31,12 @@ async function findListing(name) {
 
     const market = $(listing).find(marketSelector).text().trim();
     const link = $(listing).find(linkSelector).attr('href');
-    return { market, link };
+    return { market, lowestPrice, link };
 }
 
 async function main() {
-    const { market, link } = await findListing('revolution-case');
-    console.log(market);
+    const { market, lowestPrice, link } = await findListing('revolution-case');
+    console.log(`Market: ${market}, Price: ${lowestPrice}`);
 }
 
 main();
